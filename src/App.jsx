@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './styles.css';
+
 import blankConfig from './data/blankConfig';
 import Clock from './components/Clock';
 import News from './components/News';
@@ -10,31 +11,23 @@ import Weather from './components/Weather';
 import ConfigMenu from './components/ConfigMenu';
 
 export default function App() {
-  const DEFAULT_CONFIG = blankConfig.map((widget) => {
-    return { ...widget, positionData: { ...widget.positionData } };
-  });
+  const DEFAULT_CONFIG = blankConfig.map((widget) => ({
+    ...widget,
+    positionData: { ...widget.positionData },
+  }));
+
 
   const [widgetConfig, setWidgetConfig] = useState(() => {
-    const savedConfig = localStorage.getItem('widgetConfig');
+    const savedConfig = typeof window !== 'undefined' ? localStorage.getItem('widgetConfig') : null;
     return savedConfig ? JSON.parse(savedConfig) : DEFAULT_CONFIG;
   });
 
   const [saveRequested, setSaveRequested] = useState(false);
 
   function save() {
-    localStorage.setItem('widgetConfig', JSON.stringify(widgetConfig)); 
-    setSaveRequested(true); 
+    localStorage.setItem('widgetConfig', JSON.stringify(widgetConfig)); // Save widgetConfig to localStorage
+    setSaveRequested(true);
   }
-
-  useEffect(() => {
-    if (saveRequested) {
-      setTimeout(() => {
-        setSaveRequested(false);
-      }, 1000);
-    }
-  }, [saveRequested]);
-
-  // ... (rest of your existing code)
 
   const widgetComponents = {
     Clock: <Clock />,
@@ -50,6 +43,14 @@ export default function App() {
       <p className='saved-message'>Kaydedildi</p>
     </div>
   );
+
+  useEffect(() => {
+    if (saveRequested) {
+      setTimeout(() => {
+        setSaveRequested(false);
+      }, 1000);
+    }
+  }, [saveRequested]);
 
   function dragHandler(e, data) {
     if (e.target.dataset.type !== 'button') {
